@@ -1,0 +1,146 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+
+  
+  <head>
+    <title>Sign in & Sign up Form</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/x-icon" href="./img/icon.png">
+  </head>
+  <body>
+    <main>
+      <div class="box">
+        <div class="inner-box">
+          <div class="forms-wrap">
+            <form action="./success.html" autocomplete="off" class="sign-in-form" >
+              <div class="logo">
+                <img src="./img/logo.png" alt="PokéCenter" />
+                <h4>PokéCenter</h4>
+              </div>
+
+              <div class="heading">
+                <h2>Hello Again, Trainer!</h2>
+                <h6>Haven't got your starter yet?</h6>
+                <a href="#" class="toggle">Sign up</a>
+              </div>
+
+              <div class="actual-form">
+                <div class="input-wrap">
+                  <input
+                    type="text"
+                    minlength="3"
+                    class="input-field"
+                    autocomplete="off"
+                    required
+                  />
+                  <label>Name</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="password"
+                    minlength="6"
+                    class="input-field"
+                    autocomplete="off"
+                    required
+                  />
+                  <label>Password</label>
+                </div>
+
+                <input type="submit" value="Login" class="sign-btn" />
+
+                <p class="text">
+                  Forgotten your login details?
+                  <a href="#"><br>Get help</a> signing in
+                </p>
+              </div>
+            </form>
+
+            <form action="./success.html" autocomplete="off" class="sign-up-form" >
+              <div class="logo">
+                <img src="./img/logo.png" alt="PokéCenter" />
+                <h4>PokéCenter</h4>
+              </div>
+
+              <div class="heading">
+                <h2>Welcome, Trainer</h2>
+                <h6>Already have an account?</h6>
+                <a href="#" class="toggle">Login</a>
+              </div>
+
+              <div class="actual-form">
+                <div class="input-wrap">
+                  <input
+                    type="text"
+                    minlength="3"
+                    class="input-field"
+                    autocomplete="off"
+                    required
+                  />
+                  <label>Name</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="email"
+                    class="input-field"
+                    autocomplete="off"
+                    required
+                  />
+                  <label>Email</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="password"
+                    minlength="6"
+                    class="input-field"
+                    autocomplete="off"
+                    required
+                  />
+                  <label>Password</label>
+                </div>
+
+                <input type="submit" value="Sign Up" class="sign-btn" />
+
+                <p class="text">
+                  By signing up, I agree to the
+                  <a href="#">Terms of Services</a> and
+                  <a href="#">Privacy Policy</a>
+                </p>
+              </div>
+            </form>
+          </div>
+
+          <div class="carousel">
+            <div class="images-wrapper">
+              <img src="./img/intro1.png" class="image img-1 show" alt="" />
+              <img src="./img/intro2.jpg" class="image img-2" alt="" />
+              <img src="./img/intro3.png" class="image img-3" alt="" />
+            </div>
+
+            <div class="text-slider">
+              <div class="text-wrap">
+                <div class="text-group">
+                  <h2>Discover your favourite Pokémon!</h2>
+                  <h2>Explore and Adventure the Map</h2>
+                  <h2>Find and Meet others</h2>
+                </div>
+              </div>
+
+              <div class="bullets">
+                <span class="active" data-value="1"></span>
+                <span data-value="2"></span>
+                <span data-value="3"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="home.css" />
+    <link rel="icon" type="image/x-icon" href="./img/icon.png">
+</head>
+
+
+<body>
+    <div>
+        <nav class="header">
+            <a href="home.html"><img src="./img/icon.png" alt="logo" class="logo"></a>
+            <input class="menu-btn" type="checkbox" id="menu-btn" />
+            <label class="menu-icon" for="menu-btn"><span class="nav-icon"></span></label>
+            <ul class="menu">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <div>
+        <link href="contact.css" rel="stylesheet" />
+        <div class="home-container">
+            <div class="wrapper">
+                <h2>Contact us</h2>
+                <div id="error_message">
+            
+                </div>
+                <form action="" id="myform" onsubmit="return validate();">
+                    <div class="input_field">
+                        <input type="text" placeholder="Name" id="name">
+                    </div>
+                    <div class="input_field">
+                        <input type="text" placeholder="Subject" id="subject">
+                    </div>
+                    <div class="input_field">
+                        <input type="text" placeholder="Phone" id="phone">
+                    </div>
+                    <div class="input_field">
+                        <input type="text" placeholder="Email" id="email">
+                    </div>
+                    <div class="input_field">
+                        <textarea placeholder="Message" id="message"></textarea>
+                    </div>
+                    <div class="btn">
+                        <input type="submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<div class="footer">
+    <footer>
+        <div class="mail">
+            <h3>Join Our Mailing List !</h3>
+            <p>Receive the latest news and information form us.</p>
+            <input type="email" placeholder="Enter your email.." />
+            <button type="submit" label="submit" placeholder="submit">Submit</button>
+        </div>
+        <div class="foot-nav">
+            <ul>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="home.html">Home</a></li>
+            </ul>
+        </div>
+        <div class="social-media">
+            <span class="name">LESTER KOON ZHY MIN</span><br>
+            <span class="phone">Phone : 60192834370</span>
+            <a href="mailto:20068813@imail.sunway.edu.my?subject=" class="email">
+                E-mail
+            </a>
+        </div>
+        <p class="copyright">- © Copyright 2022 Lester Koon -</p>
+    </footer>
+</div>
+<script src="contact.js"></script>
+</body>
+</html>
