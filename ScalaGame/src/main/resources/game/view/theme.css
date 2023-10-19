@@ -1,0 +1,58 @@
+.title-background {
+    -fx-background: linear-gradient(to top
+    , rgba(188, 170, 252, 1) 0%, rgba(155, 221, 223, 1) 27%, rgba(184, 233, 235, 1) 54%);
+}
+
+.background {
+    -fx-background: rgba(184, 233, 235, 1) 54%;
+}
+
+.btn {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgb(0, 0, 0), 0, 0, 0, 0);
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.btn:hover {
+    -fx-padding: 10px 20px;
+    -fx-background-color: #EE964B;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px;
+}
+
+.closebtn {
+    -fx-border: 1px solid #3498db;
+    -fx-background-repeat: no-repeat;
+    -fx-focus-color: transparent;
+    -fx-background-color: transparent;
+    -fx-color: #3498db;
+    -fx-border-radius: 10px;
+    -fx-box-shadow: 0 6px 6px rgba(0, 0, 0, 0.6);
+}
+
+.closebtn:hover {
+    -fx-padding: 10px 20px;
+    -fx-background-color: #3498db;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px;
+}
+
+.instuctions{
+    -fx-font-size: 25px;
+    -fx-font-family: "Lucida Console";
+    -fx-font-weight: bold;
+    -fx-line-spacing: 10px;
+}
+
+.settings{
+    -fx-font-size: 30px;
+    -fx-font-family: "Lucida Console";
+    -fx-font-weight: bold;
+    -fx-line-spacing: 5px;
+}
