@@ -4,4 +4,4 @@ This is a simple implementation of the classic brick-breaker game for an Object-
 
 <div align='center'>
 
-![Alt text](/ScalaGame/Screenshots/main.png"Optional title")
+![Alt text](/ScalaGame/Screenshots/main.png "Optional title")
