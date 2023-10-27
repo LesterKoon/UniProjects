@@ -1,0 +1,490 @@
+alter session set NLS_DATE_FORMAT='DD-MON-YYYY';
+
+DROP TABLE annual_premium;
+DROP TABLE payout_details;
+DROP TABLE payout;
+DROP TABLE savings_claim_amount;
+DROP TABLE savings_claim;
+DROP TABLE payment_cust;
+DROP TABLE payment;
+DROP TABLE policy_acc_balance;
+DROP TABLE policy_acc_cust;
+DROP TABLE policy_application;
+DROP TABLE cust_policy_assured;
+DROP TABLE cust_policy_owner;
+DROP TABLE cust_policy_plan;
+DROP TABLE policy_plan;
+DROP TABLE customer;
+DROP TABLE cust_agent;
+DROP TABLE agents;
+DROP TABLE agent_at_branch;
+DROP TABLE branches;
+DROP VIEW Duration_Application;
+DROP VIEW payout_table;
+
+
+CREATE TABLE branches (
+    branch_num CHAR(3) PRIMARY KEY,
+    branch_name VARCHAR(35),
+    branch_loc VARCHAR(35),
+    num_agents NUMBER(3,0)
+);
+
+CREATE TABLE agent_at_branch (
+    agent_num CHAR(3) PRIMARY KEY,
+    branch_num CHAR(3) NOT NULL,
+    FOREIGN KEY (branch_num) REFERENCES branches(branch_num)
+);
+
+CREATE TABLE agents (
+    agentNo CHAR(3) PRIMARY KEY,
+    agentName VARCHAR(40) NOT NULL,
+    street VARCHAR(20),
+    city VARCHAR(20),
+    state VARCHAR(20),
+    zipcode NUMBER(5,0),
+    contactNo NUMBER(10,0) NOT NULL,
+    FOREIGN KEY (agentNo) REFERENCES agent_at_branch(agent_num)
+);
+
+CREATE TABLE cust_agent (
+    customer_num NUMBER(4,0) PRIMARY KEY,
+    agent_num CHAR(3) NOT NULL,
+    FOREIGN KEY (agent_num) REFERENCES agent_at_branch(agent_num)
+);
+
+CREATE TABLE customer(
+    customerNo NUMBER(4,0) PRIMARY KEY,
+    customerName VARCHAR(40) NOT NULL,
+    gender CHAR (1)
+    CHECK (gender IN ('M', 'F')),
+    race VARCHAR(20),
+    street VARCHAR(20),
+    city VARCHAR(20),
+    states VARCHAR(20),
+    postcode NUMBER(5,0),
+    mobileNo NUMBER(10,0) NOT NULL,
+    FOREIGN KEY (customerNo) REFERENCES cust_agent(customer_num) 
+);
+
+CREATE TABLE policy_plan (
+    plan VARCHAR(30) PRIMARY KEY,
+    policy_period_years NUMBER(3) NOT NULL,
+    monthly_savings FLOAT(5),
+    premium_amount FLOAT(5)
+);
+
+CREATE TABLE cust_policy_plan(
+    policy_num CHAR(12) PRIMARY KEY,
+    cust_plan VARCHAR(30),
+    FOREIGN KEY (cust_plan) REFERENCES policy_plan(plan)
+);
+
+CREATE TABLE cust_policy_owner (
+    policy_owner CHAR(12) PRIMARY KEY,
+    ownerName VARCHAR(40) NOT NULL,
+    FOREIGN KEY (policy_owner) REFERENCES cust_policy_plan(policy_num)
+);
+
+CREATE TABLE cust_policy_assured (
+    policy_assured CHAR(12) PRIMARY KEY,
+    sum_assured NUMBER(8,2) NOT NULL,
+    assuredName VARCHAR(40) NOT NULL,
+    FOREIGN KEY (policy_assured) REFERENCES cust_policy_owner(policy_owner)
+);
+
+CREATE TABLE policy_application (
+    policy_num_application CHAR(12),
+    customer_num_application NUMBER(4,0),
+    policy_date DATE,
+    PRIMARY KEY (policy_num_application, customer_num_application),
+    FOREIGN KEY (policy_num_application) REFERENCES cust_policy_plan(policy_num),
+    FOREIGN KEY (customer_num_application) REFERENCES cust_agent(customer_num)
+);
+
+CREATE TABLE policy_acc_cust(
+    accountNo Number(8,0) PRIMARY KEY,
+    policyNo CHAR(12) NOT NULL,
+    FOREIGN KEY (policyNo) REFERENCES cust_policy_plan(policy_num)
+);
+
+CREATE TABLE policy_acc_balance (
+    account_num NUMBER(8,0) PRIMARY KEY,
+    current_balance NUMBER(8,2) NOT NULL,
+    FOREIGN KEY (account_num) REFERENCES policy_acc_cust(accountNo)
+);
+
+CREATE TABLE payment (
+    payment_num CHAR(11) PRIMARY KEY,
+    policy_payment CHAR (12),
+    customer_payment NUMBER(4,0) ,
+    FOREIGN KEY (policy_payment) REFERENCES cust_policy_plan(policy_num),
+    FOREIGN KEY (customer_payment) REFERENCES cust_agent(customer_num)
+);
+
+-- Create index on payment table as this table is frequently being refered to for client payment.
+CREATE INDEX index_payment
+ON payment(payment_num, customer_payment); 
+
+CREATE TABLE payment_cust(
+    paymentNo CHAR(11) PRIMARY KEY,
+    customer_last_name VARCHAR(20),
+    description CHAR (14)
+    CHECK (description IN ('Annual Premium', 'Premium')),
+    amount NUMBER(5,0),
+    payment_date DATE,
+    FOREIGN KEY (paymentNo) REFERENCES payment(payment_num)
+);
+
+
+CREATE TABLE savings_claim (
+    claim_num NUMBER(8,0) PRIMARY KEY,
+    account_num_claim NUMBER(8,0) NOT NULL,
+    FOREIGN KEY (account_num_claim) REFERENCES policy_acc_cust(accountNo)
+);
+
+CREATE TABLE savings_claim_amount(
+    claim_number NUMBER (8,0)  PRIMARY KEY,
+    claim_amount NUMBER (8,2) NOT NULL,
+    claim_date DATE NOT NULL,
+    FOREIGN KEY (claim_number) REFERENCES savings_claim(claim_num)
+);
+
+CREATE TABLE payout (
+    payout_num NUMBER(8,0) PRIMARY KEY,
+    policy_num_payout CHAR(12) NOT NULL,
+    FOREIGN KEY (policy_num_payout) REFERENCES cust_policy_plan(policy_num)
+);
+
+-- Create index on payout table as this table is frequently refered to for client payout.
+CREATE INDEX index_payout
+ON payout(payout_num, policy_num_payout); 
+
+CREATE TABLE payout_details (
+    payoutNo NUMBER(8,0) PRIMARY KEY,
+    assuredName VARCHAR(40) NOT NULL,
+    payout_amount NUMBER(5,0),
+    payout_date DATE NOT NULL,
+    payout_description CLOB,
+    FOREIGN KEY (payoutNo) REFERENCES payout(payout_num)
+);
+
+CREATE TABLE annual_premium (
+    payment_num_annual_premium CHAR(11) NOT NULL,
+    premium_amount NUMBER(5,0),
+    premium_year NUMBER(4,0),
+    PRIMARY KEY (premium_year, payment_num_annual_premium),
+    FOREIGN KEY (payment_num_annual_premium) REFERENCES payment(payment_num)
+);
+
+
+CREATE VIEW Duration_Application AS
+SELECT policy_num_application, EXTRACT(YEAR FROM(SYSDATE - policy_date) YEAR TO MONTH)
+|| 'years'
+|| EXTRACT (MONTH FROM (SYSDATE - policy_date)YEAR TO MONTH)
+|| 'months' "Interval"
+FROM policy_application;
+
+
+
+CREATE VIEW Payout_table AS
+select PAYOUT_NUM, POLICY_NUM_PAYOUT, ASSUREDNAME, PAYOUT_AMOUNT, PAYOUT_DATE, PAYOUT_DESCRIPTION
+from PAYOUT, PAYOUT_DETAILS
+WHERE PAYOUT_NUM=PAYOUTNO;
+
+
+
+
+
+INSERT INTO branches VALUES ('001','Subang Jaya','Selangor',850);
+INSERT INTO branches VALUES ('002','Ipoh','Perak', 600 );
+INSERT INTO branches VALUES ('003','Butterworth','Penang', 700);
+INSERT INTO branches VALUES ('004','Kulai','Johor', 550);
+
+
+INSERT INTO agent_at_branch VALUES ('S10', '001');
+INSERT INTO agent_at_branch VALUES ('P20', '002');
+INSERT INTO agent_at_branch VALUES ('S20', '001');
+INSERT INTO agent_at_branch VALUES ('J40', '004');
+INSERT INTO agent_at_branch VALUES ('J50', '004');
+INSERT INTO agent_at_branch VALUES ('S30', '002');
+INSERT INTO agent_at_branch VALUES ('S40', '003');
+INSERT INTO agent_at_branch VALUES ('S50', '004');
+INSERT INTO agent_at_branch VALUES ('S60', '001');
+INSERT INTO agent_at_branch VALUES ('P30', '002');
+INSERT INTO agent_at_branch VALUES ('P40', '003');
+INSERT INTO agent_at_branch VALUES ('P50', '004');
+INSERT INTO agent_at_branch VALUES ('P60', '002');
+INSERT INTO agent_at_branch VALUES ('J60', '003');
+INSERT INTO agent_at_branch VALUES ('J70', '003');
+
+
+INSERT INTO agents VALUES ('S10', 'Lim', '4HS', 'Klang', 'Selangor', 58300, 0123456789);
+INSERT INTO agents VALUES ('P20', 'James', 'PJS11', 'Puchong', 'Selangor', 47100, 0102345678);
+INSERT INTO agents VALUES ('S20', 'Lily', 'KJW2', 'Ipoh', 'Perak', 58300, 0136556781);
+INSERT INTO agents VALUES ('J40', 'Charles', 'SL6', 'Subang', 'Selangor', 43000, 0157843728);
+INSERT INTO agents VALUES ('J50', 'Elizabeth', 'BK5', 'Malacca', 'Malacca', 62500, 0171529604);
+INSERT INTO agents VALUES ('S30', 'Henry', '4HS', 'Klang', 'Selangor', 58300, 0123456987);
+INSERT INTO agents VALUES ('S40', 'Clayton', 'PJS11', 'Puchong', 'Selangor', 47100, 0102348765);
+INSERT INTO agents VALUES ('S50', 'Lily', 'KJW2', 'Ipoh', 'Perak', 58300, 0136551865);
+INSERT INTO agents VALUES ('S60', 'Charles', 'SL6', 'Subang', 'Selangor', 43000, 0157843765);
+INSERT INTO agents VALUES ('P30', 'Elizabeth', 'BK5', 'Malacca', 'Malacca', 62500, 0171524028);
+INSERT INTO agents VALUES ('P40', 'Ellen', '4HS', 'Klang', 'Selangor', 58300, 0167367191);
+INSERT INTO agents VALUES ('P50', 'Richard', 'PJS11', 'Puchong', 'Selangor', 47100, 0178923451);
+INSERT INTO agents VALUES ('P60', 'Katya', 'KJW2', 'Ipoh', 'Perak', 58300, 0141469871);
+INSERT INTO agents VALUES ('J60', 'Trixie', 'SL6', 'Subang', 'Selangor', 43000, 0158110191);
+INSERT INTO agents VALUES ('J70', 'Liza', 'BK5', 'Malacca', 'Malacca', 62500, 017152091);
+
+
+INSERT INTO cust_agent VALUES (1001, 'S10');
+INSERT INTO cust_agent VALUES (1002, 'P20');
+INSERT INTO cust_agent VALUES (1003, 'P20');
+INSERT INTO cust_agent VALUES (1004, 'S20');
+INSERT INTO cust_agent VALUES (1005, 'J50');
+INSERT INTO cust_agent VALUES (1006, 'S30');
+INSERT INTO cust_agent VALUES (1007, 'S40');
+INSERT INTO cust_agent VALUES (1008, 'P30');
+INSERT INTO cust_agent VALUES (1009, 'P40');
+INSERT INTO cust_agent VALUES (1010, 'P60');
+INSERT INTO cust_agent VALUES (1011, 'J60');
+INSERT INTO cust_agent VALUES (1012, 'S10');
+INSERT INTO cust_agent VALUES (1013, 'J60');
+INSERT INTO cust_agent VALUES (1014, 'S30');
+INSERT INTO cust_agent VALUES (1015, 'S20');
+
+
+INSERT INTO customer VALUES (1001, 'John', 'M', 'Indian','PMS34', 'Puchong', 'Selangor', 47100, 0196224135 );
+INSERT INTO customer VALUES (1002, 'Lee', 'F','Chinese', 'G67', 'Georgetown', 'Penang', 10050, 0133613379 );
+INSERT INTO customer VALUES (1003, 'Betty', 'F','Filipino', 'QOS9', 'Klang', 'Selangor', 42000, 0122079169 );
+INSERT INTO customer VALUES (1004, 'Mark', 'F', 'Chinese','BL21', 'Tambun', 'Perak', 31400, 0192094401 );
+INSERT INTO customer VALUES (1005, 'John', 'M','Indian', 'PMS34', 'Puchong', 'Selangor', 47100, 0132692483 );
+INSERT INTO customer VALUES (1006, 'Ellen', 'F','Filipino', 'PMS34', 'Puchong', 'Selangor', 47100, 0169224139 );
+INSERT INTO customer VALUES (1007, 'Richard', 'M','Filipino', 'G67', 'Georgetown', 'Penang', 10050, 0313613387 );
+INSERT INTO customer VALUES (1008, 'Katya', 'F','Caucasian', 'QOS9', 'Klang', 'Selangor', 42000, 0412079180 );
+INSERT INTO customer VALUES (1009, 'Trixie', 'F','Caucasian', 'BL21', 'Tambun', 'Perak', 31400, 0912094301 );
+INSERT INTO customer VALUES (1010, 'Mark', 'M','Indian', 'PMS34', 'Puchong', 'Selangor', 47100, 0312692526 );
+INSERT INTO customer VALUES (1011, 'Rose', 'F','Malay', 'PMS34', 'Puchong', 'Selangor', 47100, 0816224234 );
+INSERT INTO customer VALUES (1012, 'Jane', 'F','Malay', 'G67', 'Georgetown', 'Penang', 10050, 0123613791 );
+INSERT INTO customer VALUES (1013, 'Betty', 'F','Chinese', 'QOS9', 'Klang', 'Selangor', 42000, 0121079170 );
+INSERT INTO customer VALUES (1014, 'Christine', 'F','Indian', 'BL21', 'Tambun', 'Perak', 31400, 0152094420 );
+INSERT INTO customer VALUES (1015, 'Faye', 'F','Caucasian', 'PMS34', 'Puchong', 'Selangor', 47100, 0122692500 );
+
+
+INSERT INTO policy_plan VALUES ('Health Booster', 25, 50.70, 471.40);
+INSERT INTO policy_plan VALUES ('Total Health Plus',40, 135.67, 1356.70);
+INSERT INTO policy_plan VALUES ('Enrich Health', 10, 10.00, 389.71);
+INSERT INTO policy_plan VALUES ('Enrich Gold', 99, 230.00, 2300.70);
+
+
+INSERT INTO cust_policy_plan VALUES ('6147-932-116','Enrich Health');
+INSERT INTO cust_policy_plan VALUES ('5678-930-816','Health Booster');
+INSERT INTO cust_policy_plan VALUES ('6136-941-611','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('9289-893-684','Total Health Plus');
+INSERT INTO cust_policy_plan VALUES ('9509-835-291','Enrich Health');
+INSERT INTO cust_policy_plan VALUES ('3654-968-452','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('4757-619-209','Health Booster');
+INSERT INTO cust_policy_plan VALUES ('3181-477-687','Health Booster');
+INSERT INTO cust_policy_plan VALUES ('6981-107-915','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('1887-466-699','Total Health Plus');
+INSERT INTO cust_policy_plan VALUES ('8665-269-253','Enrich Health');
+INSERT INTO cust_policy_plan VALUES ('8932-248-021','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('0284-885-758','Total Health Plus');
+INSERT INTO cust_policy_plan VALUES ('3847-927-655','Total Health Plus');
+INSERT INTO cust_policy_plan VALUES ('2968-891-431','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('1800-385-567','Health Booster');
+INSERT INTO cust_policy_plan VALUES ('2629-437-218','Health Booster');
+INSERT INTO cust_policy_plan VALUES ('3887-922-909','Enrich Gold');
+INSERT INTO cust_policy_plan VALUES ('9895-003-795','Total Health Plus');
+INSERT INTO cust_policy_plan VALUES ('9499-661-451','Enrich Health');
+
+
+INSERT INTO cust_policy_owner VALUES ('6147-932-116', 'John');
+INSERT INTO cust_policy_owner VALUES ('5678-930-816', 'John');
+INSERT INTO cust_policy_owner VALUES ('6136-941-611', 'John');
+INSERT INTO cust_policy_owner VALUES ('9289-893-684', 'Lee');
+INSERT INTO cust_policy_owner VALUES ('9509-835-291', 'Betty');
+INSERT INTO cust_policy_owner VALUES ('3654-968-452', 'Mark');
+INSERT INTO cust_policy_owner VALUES ('4757-619-209', 'John');
+INSERT INTO cust_policy_owner VALUES ('3181-477-687','Ellen');
+INSERT INTO cust_policy_owner VALUES ('6981-107-915','Richard');
+INSERT INTO cust_policy_owner VALUES ('1887-466-699','Katya');
+INSERT INTO cust_policy_owner VALUES ('8665-269-253','Trixie');
+INSERT INTO cust_policy_owner VALUES ('8932-248-021','Mark');
+INSERT INTO cust_policy_owner VALUES ('0284-885-758','Rose');
+INSERT INTO cust_policy_owner VALUES ('3847-927-655','Rose');
+INSERT INTO cust_policy_owner VALUES ('2968-891-431','Jane');
+INSERT INTO cust_policy_owner VALUES ('1800-385-567','Rose');
+INSERT INTO cust_policy_owner VALUES ('2629-437-218','Betty');
+INSERT INTO cust_policy_owner VALUES ('3887-922-909','Christine');
+INSERT INTO cust_policy_owner VALUES ('9895-003-795','Faye');
+INSERT INTO cust_policy_owner VALUES ('9499-661-451','Faye');
+
+
+INSERT INTO cust_policy_assured VALUES ('6147-932-116', 4000.50, 'Bethany');
+INSERT INTO cust_policy_assured VALUES ('6136-941-611', 15000.30, 'John');
+INSERT INTO cust_policy_assured VALUES ('9289-893-684', 75300.00, 'Lee');
+INSERT INTO cust_policy_assured VALUES ('9509-835-291', 8100.25, 'Mia');
+INSERT INTO cust_policy_assured VALUES ('3654-968-452', 110870.70, 'Aaron');
+INSERT INTO cust_policy_assured VALUES ('4757-619-209', 6470.05, 'Lee');
+INSERT INTO cust_policy_assured VALUES ('5678-930-816', 1600.90, 'Amy');
+INSERT INTO cust_policy_assured VALUES ('3181-477-687', 1550.70,'Ellen');
+INSERT INTO cust_policy_assured VALUES ('6981-107-915', 77500.00,'Jeff');
+INSERT INTO cust_policy_assured VALUES ('1887-466-699', 9850.90,'Katya');
+INSERT INTO cust_policy_assured VALUES ('8665-269-253', 5000.60,'Trixie');
+INSERT INTO cust_policy_assured VALUES ('8932-248-021', 120300.30,'Kayden');
+INSERT INTO cust_policy_assured VALUES ('0284-885-758', 25200.50,'Rose');
+INSERT INTO cust_policy_assured VALUES ('3847-927-655', 20100.80,'Celeste');
+INSERT INTO cust_policy_assured VALUES ('2968-891-431', 66999.69,'Jane');
+INSERT INTO cust_policy_assured VALUES ('1800-385-567', 1600.60,'Joey');
+INSERT INTO cust_policy_assured VALUES ('2629-437-218', 5040.50,'Betty');
+INSERT INTO cust_policy_assured VALUES ('3887-922-909', 11600.9,'Christine');
+INSERT INTO cust_policy_assured VALUES ('9895-003-795', 15020.50,'Faye');
+INSERT INTO cust_policy_assured VALUES ('9499-661-451', 7580.85,'Steve');
+
+
+INSERT INTO policy_application VALUES ('6147-932-116', 1001, '12-DEC-2021');
+INSERT INTO policy_application VALUES ('6136-941-611', 1001, '15-MAR-2021');
+INSERT INTO policy_application VALUES ('9289-893-684', 1002, '20-AUG-2021');
+INSERT INTO policy_application VALUES ('9509-835-291', 1003, '25-NOV-2021');
+INSERT INTO policy_application VALUES ('3654-968-452', 1004, '28-NOV-2021');
+INSERT INTO policy_application VALUES ('4757-619-209', 1005, '21-SEP-2021');
+INSERT INTO policy_application VALUES ('5678-930-816', 1001, '23-NOV-2022');
+INSERT INTO policy_application VALUES ('3181-477-687', 1006, '15-DEC-2021');
+INSERT INTO policy_application VALUES ('6981-107-915', 1007, '15-SEP-2021');
+INSERT INTO policy_application VALUES ('1887-466-699', 1008, '03-JUN-2021');
+INSERT INTO policy_application VALUES ('8665-269-253', 1009, '19-NOV-2022');
+INSERT INTO policy_application VALUES ('8932-248-021', 1010, '23-AUG-2021');
+INSERT INTO policy_application VALUES ('0284-885-758', 1011, '17-JUL-2022');
+INSERT INTO policy_application VALUES ('3847-927-655', 1011, '23-OCT-2022');
+INSERT INTO policy_application VALUES ('2968-891-431', 1012, '23-OCT-2022');
+INSERT INTO policy_application VALUES ('1800-385-567', 1011, '21-NOV-2021');
+INSERT INTO policy_application VALUES ('2629-437-218', 1013, '20-FEB-2021');
+INSERT INTO policy_application VALUES ('3887-922-909', 1014, '20-MAR-2021');
+INSERT INTO policy_application VALUES ('9895-003-795', 1015, '20-MAY-2021');
+INSERT INTO policy_application VALUES ('9499-661-451', 1015, '21-JUN-2021');
+
+
+INSERT INTO policy_acc_cust VALUES (92017774,'6136-941-611');
+INSERT INTO policy_acc_cust VALUES (67257208,'9289-893-684');
+INSERT INTO policy_acc_cust VALUES (73394217,'9509-835-291');
+INSERT INTO policy_acc_cust VALUES (93586370,'3654-968-452');
+INSERT INTO policy_acc_cust VALUES (14676851,'4757-619-209');
+INSERT INTO policy_acc_cust VALUES (99966636, '3181-477-687');
+INSERT INTO policy_acc_cust VALUES (73261396, '6981-107-915');
+INSERT INTO policy_acc_cust VALUES (63647496, '1887-466-699');
+INSERT INTO policy_acc_cust VALUES (68929462, '8665-269-253');
+INSERT INTO policy_acc_cust VALUES (41096201, '8932-248-021');
+INSERT INTO policy_acc_cust VALUES (09046107, '0284-885-758');
+INSERT INTO policy_acc_cust VALUES (11539010, '2968-891-431');
+INSERT INTO policy_acc_cust VALUES (75530171, '2629-437-218');
+INSERT INTO policy_acc_cust VALUES (64225202, '3887-922-909');
+INSERT INTO policy_acc_cust VALUES (90764844, '9895-003-795');
+
+
+
+INSERT INTO policy_acc_balance VALUES (92017774, 7790.40);
+INSERT INTO policy_acc_balance VALUES (67257208, 800.60);
+INSERT INTO policy_acc_balance VALUES (73394217, 9072.20);
+INSERT INTO policy_acc_balance VALUES (93586370, 3874.90);
+INSERT INTO policy_acc_balance VALUES (14676851, 150.60);
+INSERT INTO policy_acc_balance VALUES (99966636, 880.60);
+INSERT INTO policy_acc_balance VALUES (73261396, 7150.70);
+INSERT INTO policy_acc_balance VALUES (63647496, 1150.60);
+INSERT INTO policy_acc_balance VALUES (68929462, 1750.40);
+INSERT INTO policy_acc_balance VALUES (41096201, 10500.25);
+INSERT INTO policy_acc_balance VALUES (09046107, 2990.60);
+INSERT INTO policy_acc_balance VALUES (11539010, 5874.60);
+INSERT INTO policy_acc_balance VALUES (75530171, 950.95);
+INSERT INTO policy_acc_balance VALUES (64225202, 3874.90);
+INSERT INTO policy_acc_balance VALUES (90764844, 2050.00);
+
+
+
+INSERT INTO payment VALUES ('ukqm03wjhs3', '6147-932-116',1001);
+INSERT INTO payment VALUES ('av0cm1265ve', '6136-941-611',1001);
+INSERT INTO payment VALUES ('xd5j884axy4', '5678-930-816',1001);
+INSERT INTO payment VALUES ('z3okvpzkira', '9509-835-291',1003);
+INSERT INTO payment VALUES ('erlbofhnc3c', '3654-968-452',1004);
+INSERT INTO payment VALUES ('n2t8km47n9a', '4757-619-209',1005);
+INSERT INTO payment VALUES ('9xd9016akeg', '9289-893-684',1002);
+INSERT INTO payment VALUES ('l8w387cy68k', '3181-477-687',1006);
+INSERT INTO payment VALUES ('parz7avg48e', '6981-107-915',1007);
+INSERT INTO payment VALUES ('j91oadwkb9x', '1887-466-699',1008);
+INSERT INTO payment VALUES ('ylpksfqrdix', '8665-269-253',1009);
+INSERT INTO payment VALUES ('onj32qe1cvo', '8932-248-021',1010);
+INSERT INTO payment VALUES ('hxzujft3nr5', '0284-885-758',1011);
+INSERT INTO payment VALUES ('dztb7esh6yr', '2968-891-431',1012);
+INSERT INTO payment VALUES ('uwx783cy68k', '2629-437-218',1013);
+INSERT INTO payment VALUES ('7zarpavg48e', '3887-922-909',1014);
+INSERT INTO payment VALUES ('y3xzwntc0xr', '3847-927-655',1011);
+INSERT INTO payment VALUES ('o19jadwkb9x', '9895-003-795',1015);
+INSERT INTO payment VALUES ('plyksfqrdix', '9499-661-451',1015);
+INSERT INTO payment VALUES ('jnpbioibpgr', '9499-661-451',1015);
+
+ 
+INSERT INTO payment_cust VALUES ('ukqm03wjhs3','John', 'Annual Premium', 450.50, '12-DEC-2022');
+INSERT INTO payment_cust VALUES ('av0cm1265ve','John', 'Annual Premium', 100.40, '15-MAR-2022');
+INSERT INTO payment_cust VALUES ('xd5j884axy4','John', 'Premium', 2000.30, '23-NOV-2022');
+INSERT INTO payment_cust VALUES ('z3okvpzkira','Betty','Premium', 1000.30, '25-NOV-2021');
+INSERT INTO payment_cust VALUES ('erlbofhnc3c','Mark', 'Annual Premium', 450.90, '28-NOV-2022');
+INSERT INTO payment_cust VALUES ('n2t8km47n9a','John', 'Annual Premium', 850.80, '21-SEP-2022');
+INSERT INTO payment_cust VALUES ('9xd9016akeg','Lee', 'Premium', 3000.80, '21-SEP-2021');
+INSERT INTO payment_cust VALUES ('l8w387cy68k','Ellen', 'Annual Premium', 750.50, '15-DEC-2022');
+INSERT INTO payment_cust VALUES ('parz7avg48e','Richard', 'Premium', 1100.40, '18-AUG-2022');
+INSERT INTO payment_cust VALUES ('j91oadwkb9x','Katya', 'Premium', 1700.30, '03-JUN-2022');
+INSERT INTO payment_cust VALUES ('ylpksfqrdix','Trixie','Premium', 1000.30, '19-NOV-2022');
+INSERT INTO payment_cust VALUES ('onj32qe1cvo','Mark', 'Premium', 750.00, '23-AUG-2022');
+INSERT INTO payment_cust VALUES ('hxzujft3nr5','Rose', 'Premium', 850.00, '21-JUL-2022');
+INSERT INTO payment_cust VALUES ('dztb7esh6yr','Jane', 'Annual Premium', 800.80, '20-DEC-2022');
+INSERT INTO payment_cust VALUES ('uwx783cy68k','Betty', 'Annual Premium', 450.50, '20-FEB-2022');
+INSERT INTO payment_cust VALUES ('7zarpavg48e','Christine', 'Annual Premium', 100.40, '20-MAR-2022');
+INSERT INTO payment_cust VALUES ('y3xzwntc0xr','Rose','Premium', 1000.30, '23-DEC-2022');
+INSERT INTO payment_cust VALUES ('o19jadwkb9x','Faye', 'Annual Premium', 1200.30, '20-MAY-2022');
+INSERT INTO payment_cust VALUES ('plyksfqrdix','Faye','Annual Premium', 1000.30, '21-JUN-2022');
+INSERT INTO payment_cust VALUES ('jnpbioibpgr','Faye','Premium', 2060.30, '25-JUN-2022');
+
+
+INSERT INTO savings_claim VALUES (62689082, 92017774);
+INSERT INTO savings_claim VALUES (53207038, 67257208);
+INSERT INTO savings_claim VALUES (93826008, 73394217);
+INSERT INTO savings_claim VALUES (38657145, 93586370);
+INSERT INTO savings_claim VALUES (67381268, 63647496);
+INSERT INTO savings_claim VALUES (24099926, 41096201);
+INSERT INTO savings_claim VALUES (37138019, 41096201);
+INSERT INTO savings_claim VALUES (34796473, 64225202);
+
+
+INSERT INTO savings_claim_amount VALUES (62689082, 303.33, '15-JAN-2022');
+INSERT INTO savings_claim_amount VALUES (53207038, 539.85, '28-SEP-2022');
+INSERT INTO savings_claim_amount VALUES (93826008, 616.16, '28-JAN-2022');
+INSERT INTO savings_claim_amount VALUES (38657145, 863.71, '09-MARCH-2022');
+INSERT INTO savings_claim_amount VALUES (67381268, 209.90, '22-JAN-2022');
+INSERT INTO savings_claim_amount VALUES (24099926, 1750.85, '09-AUG-2022');
+INSERT INTO savings_claim_amount VALUES (37138019, 334.16, '28-SEP-2022');
+INSERT INTO savings_claim_amount VALUES (34796473, 278.71, '29-MARCH-2022');
+
+
+INSERT INTO payout VALUES (97935628, '6136-941-611');
+INSERT INTO payout VALUES (85865047, '3654-968-452');
+INSERT INTO payout VALUES (96876582, '2629-437-218');
+INSERT INTO payout VALUES (70075150, '9499-661-451');
+INSERT INTO payout VALUES (49290463, '9895-003-795');
+
+
+INSERT INTO payout_details VALUES (97935628, 'John', 500.25, '15-MAR-2022', 'Health screening' );
+INSERT INTO payout_details VALUES (85865047, 'Mark', 1100.70, '25-NOV-2022', 'Cancer treatment' );
+INSERT INTO payout_details VALUES (96876582, 'Betty', 100.70, '25-NOV-2022', 'Work accident' );
+INSERT INTO payout_details VALUES (70075150, 'Steve', 2500.60, '25-DEC-2022', 'Vehicular accident' );
+INSERT INTO payout_details VALUES (49290463, 'Faye', 700.60, '25-DEC-2022', 'Health screening' );
+
+
+INSERT INTO annual_premium VALUES ('ukqm03wjhs3', 450.5, 2022 );
+INSERT INTO annual_premium VALUES ('av0cm1265ve', 100.40, 2022 );
+INSERT INTO annual_premium VALUES ('erlbofhnc3c', 450.90, 2022 );
+INSERT INTO annual_premium VALUES ('n2t8km47n9a', 850.8, 2022 );
+INSERT INTO annual_premium VALUES ('l8w387cy68k', 750.50, 2022);
+INSERT INTO annual_premium VALUES ('dztb7esh6yr', 800.80, 2022);
+INSERT INTO annual_premium VALUES ('uwx783cy68k', 450.50, 2022);
+INSERT INTO annual_premium VALUES ('7zarpavg48e', 100.40, 2022);
+INSERT INTO annual_premium VALUES ('o19jadwkb9x', 1200.30, 2022);
+INSERT INTO annual_premium VALUES ('plyksfqrdix', 1000.30, 2022);
