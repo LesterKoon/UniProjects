@@ -29,7 +29,7 @@ This project contains a Java implementation of AVL trees, a self-balancing binar
 
 ## <a name="_5sr7krlb4r2"></a>**1.0 Implementation**
 This section displays the implementation of the Self-Balancing Tree (AVL) and Hashing (Open Addressing and Separate Chaining) programs created. 
-## <a name="_sx1vn3qvbgx"></a>**2.1 Self-Balancing Trees (AVL Tree)**
+## <a name="_sx1vn3qvbgx"></a>**1.1 Self-Balancing Trees (AVL Tree)**
 ### <a name="_9fp6vwoq33u1"></a>**Interface**
 
 
