@@ -1,7 +1,11 @@
 # Scala Brick-Breaker / Breakout Game
 This is a simple implementation of the classic brick-breaker game for an Object-Oriented Programming assignment built using Scala, ScalaFX and Scene Builder.
 
-> Preview of The Game Interface
+# Preview of the Game Interface
+
+> Complete Game Preview
+[![Youtube Link](https://github.com/LesterKoon/UniProjects/assets/77951315/f21435ab-2d42-4f88-b438-76d0e8815b29)](]https://www.youtube.com/watch?v=Db2dNVfpId4)
+
 
 
 ![main](https://github.com/LesterKoon/UniProjects/assets/77951315/ba743fb5-4338-4116-b14c-d5e1b11e7784)
