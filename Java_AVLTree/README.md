@@ -1,5 +1,5 @@
 # Data Structures and Algorithms: Implementation and Analysis of Self-Balancing Trees
-This project contains a Java implementation of AVL trees, a self-balancing binary tree that ensures efficient search, insertion, and deletion operations. AVL trees maintain balance by tracking the height of left and right subtrees, performing rotations when needed. 
+This project contains a Java implementation of AVL trees, a self-balancing binary tree that ensures efficient search, insertion, and deletion operations. AVL trees maintain balance by tracking the height of left and right subtrees, performing rotations when needed. This program allows you to explore the basic operations and visualize the stucture of an AVL Tree.
 
 <a name="_e6dsnimhvwe6"></a>**Table Of Contents**
 
