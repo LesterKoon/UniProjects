@@ -1,11 +1,4 @@
-﻿<a name="_ej4xxfdm9pag"></a>**CSC2103**
-
-**Data Structures and Algorithms**
-
-**Title :** 
-
-<a name="_aodbpr23caq"></a>**Implementation and Analysis of Self-Balancing Trees (AVL)Efficient Algorithm Design and Data Representation**
-
+# Data Structures and Algorithms: Implementation and Analysis of Self-Balancing Trees
 
 
 <a name="_e6dsnimhvwe6"></a>**Table Of Contents**
@@ -34,7 +27,7 @@
 
 
 
-# <a name="_5sr7krlb4r2"></a>**1.0 Implementation**
+## <a name="_5sr7krlb4r2"></a>**1.0 Implementation**
 This section displays the implementation of the Self-Balancing Tree (AVL) and Hashing (Open Addressing and Separate Chaining) programs created. 
 ## <a name="_sx1vn3qvbgx"></a>**2.1 Self-Balancing Trees (AVL Tree)**
 ### <a name="_9fp6vwoq33u1"></a>**Interface**
@@ -46,7 +39,7 @@ This section displays the implementation of the Self-Balancing Tree (AVL) and Ha
 |![](/Screenshot/002.png)|<p>If the user chooses to insert a node, they can enter **'1'** to choose the insert operation then input the integer element they wish to add.</p><p></p><p>This process continues repeatedly until the user decides not to insert any more nodes.</p>|
 |![](/Screenshot/003.png)|To display the AVL tree, the user needs to input  **'4'**. |
 |![](/Screenshot/004.png)![](/Screenshot/005.png)|If the user wants to search for a specific node that has been previously input, the program will print **'true'** if the node is present in the AVL tree. However, it will print **'false'** if it is not found.|
-|![](/Screenshot/006.png)|Upon removing a node from the AVL tree, the tree will be automatically updated. When the user inputs **'4'**, they can observe the changes in the AVL tree.|
+|![](Screenshot/006.png)|Upon removing a node from the AVL tree, the tree will be automatically updated. When the user inputs **'4'**, they can observe the changes in the AVL tree.|
 |![](/Screenshot/007.png)|<p>If the user selects **'5'**, they can choose to clear the entire AVL tree. Once the tree is cleared, if they subsequently choose **'4'** to display the tree, nothing will be printed as the tree is now empty.</p><p></p><p></p><p></p><p></p><p></p>|
 ### <a name="_y0iamc2fy5re"></a>**Logic of Data Structure**
 
@@ -101,7 +94,7 @@ Input data: 21, 19, 21, 5, 2, 12, 25, 30, 16
 |Insert = 12|![](/Screenshot/036.png)|<p>![](/Screenshot/037.png)</p><p></p><p>The output differs from the desired output because the program inserts duplicate values into the left subtree instead of the right subtree.</p>|
 |Search = 21|![](/Screenshot/038.png)|![](/Screenshot/039.png)|
 
-# <a name="_csp8mxyalvwf"></a>**2.0 Challenges** 
+## <a name="_csp8mxyalvwf"></a>**2.0 Challenges** 
 This section displays the challenges of the Self-Balancing Tree (AVL) and Hashing (Open Addressing and Separate Chaining) programs created. 
 ## <a name="_7atqcs522a33"></a>**2.1  Self-Balancing Trees (AVL)**
 
