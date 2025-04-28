@@ -5,7 +5,8 @@ This is a simple implementation of the classic brick-breaker game for an Object-
 
 > Complete Game Preview
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Db2dNVfpId4?si=ee-OicQ32YE0Z-oE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Youtube Preview](https://img.youtube.com/vi/Db2dNVfpId4/0.jpg)](https://www.youtube.com/watch?v=Db2dNVfpId4)
+
 
 > Preview of the Game Interface
 
