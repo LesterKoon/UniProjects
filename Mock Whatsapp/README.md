@@ -30,4 +30,4 @@ To run the project, follow these steps:
 1. Clone the repository.
 2. Set up the required dependencies using Maven.
 3. Start the server-side system.
-4. Run the user client to interact with the messaging system.
+4. Run multiple client-side instances to replicate multiple user interactions.
